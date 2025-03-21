@@ -16,7 +16,7 @@ export async function GET() {
     }
 
     const { data, error } = await supabase
-      .from('chat_usage')
+      .from('mindmap_usage')
       .select('usage_count')
       .eq('user_id', session.user.email)
       .single();
@@ -25,7 +25,7 @@ export async function GET() {
       if (error.code === 'PGRST116') {
         // No record found - create initial record
         const { data: newUsage, error: insertError } = await supabase
-          .from('chat_usage')
+          .from('mindmap_usage')
           .insert([{ user_id: session.user.email, usage_count: 0 }])
           .select('usage_count')
           .single();
@@ -53,7 +53,7 @@ export async function POST() {
 
     // First get the current usage count
     const { data: currentData, error: fetchError } = await supabase
-      .from('chat_usage')
+      .from('mindmap_usage')
       .select('usage_count')
       .eq('user_id', session.user.email)
       .single();
@@ -62,7 +62,7 @@ export async function POST() {
 
     // Then increment it
     const { data, error } = await supabase
-      .from('chat_usage')
+      .from('mindmap_usage')
       .update({ 
         usage_count: (currentData.usage_count || 0) + 1,
         last_used: new Date().toISOString()

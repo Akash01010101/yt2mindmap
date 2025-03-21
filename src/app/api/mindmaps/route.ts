@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const mindmapId = uuidv4();
     
     // Save metadata
-    const metadataBlobName = `${userEmail}/${mindmapId}.json`;
+    const metadataBlobName = `user-${userEmail.split("@")[0]}/${mindmapId}.json`;
     const metadataBlobClient = containerClient.getBlockBlobClient(metadataBlobName);
     const metadata = {
       id: mindmapId,
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     );
 
     // Save HTML content
-    const htmlBlobName = `${userEmail}/${mindmapId}.html`;
+    const htmlBlobName = `user-${userEmail.split("@")[0]}/${mindmapId}.html`;
     const htmlBlobClient = containerClient.getBlockBlobClient(htmlBlobName);
     await htmlBlobClient.upload(htmlContent, htmlContent.length);
 
@@ -62,10 +62,11 @@ export async function GET() {
     const containerName = 'html';
     const containerClient = blobServiceClient.getContainerClient(containerName);
     const userEmail = session.user.email.toLowerCase();
+    const userFolder = `user-${userEmail.split("@")[0]}`;
 
     // List all metadata blobs for this user
     const mindmaps = [];
-    for await (const blob of containerClient.listBlobsByHierarchy('/', { prefix: `${userEmail}/` })) {
+    for await (const blob of containerClient.listBlobsByHierarchy('/', { prefix: `${userFolder}/` })) {
       if (blob.kind === 'blob' && blob.name.endsWith('.json')) {
         const blobClient = containerClient.getBlockBlobClient(blob.name);
         const downloadResponse = await blobClient.download();

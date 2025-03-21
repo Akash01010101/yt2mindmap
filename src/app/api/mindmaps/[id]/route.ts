@@ -5,7 +5,7 @@ import { getServerSession } from 'next-auth';
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING || '';
 const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession();
     if (!session?.user?.email) {
@@ -16,11 +16,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const containerClient = blobServiceClient.getContainerClient(containerName);
     
     // Get the mindmap content
-    const { id } = params;
+    const { id } = await(params);
     const userEmail = session.user.email.toLowerCase();
     
     // Get metadata
-    const metadataBlobName = `${userEmail}/${id}.json`;
+    const metadataBlobName = `user-${userEmail.split("@")[0]}/${id}.json`;
     const metadataBlobClient = containerClient.getBlockBlobClient(metadataBlobName);
     const metadataResponse = await metadataBlobClient.download();
     const metadataContent = await streamToString(metadataResponse.readableStreamBody || null);
@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const metadata = JSON.parse(metadataContent);
 
     // Get HTML content
-    const htmlBlobName = `${userEmail}/${id}.html`;
+    const htmlBlobName = `user-${userEmail.split("@")[0]}/${id}.html`;
     const htmlBlobClient = containerClient.getBlockBlobClient(htmlBlobName);
     const htmlResponse = await htmlBlobClient.download();
     const htmlContent = await streamToString(htmlResponse.readableStreamBody || null);
