@@ -83,7 +83,6 @@ export async function GET() {
         });
       }
     }
-    console.log(mindmaps)
     return NextResponse.json(mindmaps.sort((a, b) => 
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     ));

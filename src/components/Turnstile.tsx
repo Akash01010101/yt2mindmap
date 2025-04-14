@@ -41,11 +41,9 @@ export default function Turnstile({ onVerify }: TurnstileProps) {
     if (window.turnstile) {
       window.turnstile.remove('#turnstile-container');
     }
-
     // Check if script is already loaded
     const existingScript = document.querySelector('script[src*="turnstile"]');
     let script: HTMLScriptElement | null = null;
-    
     if (!existingScript) {
       // If not loaded, set up the callback and load the script
       script = document.createElement('script');
@@ -54,14 +52,11 @@ export default function Turnstile({ onVerify }: TurnstileProps) {
       script.defer = true;
       document.head.appendChild(script);
     }
-
     window.onLoadTurnstileCallback = onLoad;
-
     if (existingScript && window.turnstile) {
       // If script exists and turnstile is initialized, render immediately
       onLoad();
     }
-
     return () => {
       if (window.turnstile) {
         window.turnstile.remove('#turnstile-container');
@@ -74,7 +69,6 @@ export default function Turnstile({ onVerify }: TurnstileProps) {
         delete window.onLoadTurnstileCallback;
       }
     };
-
   }, [onLoad]);
 
   return <div id="turnstile-container" className="flex justify-center my-4" />;

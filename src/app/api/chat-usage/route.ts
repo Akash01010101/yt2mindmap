@@ -1,12 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 // GET: Fetch user's chat usage count
 export async function GET() {
   try {
@@ -14,13 +8,11 @@ export async function GET() {
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
     const { data, error } = await supabase
       .from('mindmap_usage')
       .select('usage_count, isSubscribed, isPaid')
       .eq('user_id', session.user.email)
       .single();
-
     if (error) {
       if (error.code === 'PGRST116') {
         // No record found - create initial record
@@ -35,31 +27,26 @@ export async function GET() {
       }
       throw error;
     }
-
     return NextResponse.json({ usage_count: data.usage_count, isSubscribed: data.isSubscribed, isPaid: data.isPaid });
   } catch (error) {
     console.error('Error fetching chat usage:', error);
     return NextResponse.json({ error: 'Failed to fetch chat usage' }, { status: 500 });
   }
 }
-
-// POST: Increment usage count after successful Turnstile verification
+// POST: Increment usage count 
 export async function POST() {
   try {
     const session = await getServerSession();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
     // First get the current usage count
     const { data: currentData, error: fetchError } = await supabase
       .from('mindmap_usage')
       .select('usage_count, isSubscribed')
       .eq('user_id', session.user.email)
       .single();
-
     if (fetchError) throw fetchError;
-
     // Then increment it
     const { data, error } = await supabase
       .from('mindmap_usage')
@@ -70,9 +57,7 @@ export async function POST() {
       .eq('user_id', session.user.email)
       .select('usage_count')
       .single();
-
     if (error) throw error;
-
     return NextResponse.json({ usage_count: data.usage_count, isSubscribed: currentData.isSubscribed });
   } catch (error) {
     console.error('Error updating chat usage:', error);

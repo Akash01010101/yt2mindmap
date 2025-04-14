@@ -144,7 +144,7 @@ export default function Home() {
       setLoading(false);
     }
   };
-  const [CurrentStep, setCurrentSteps] = useState('');
+  const [CurrentloadingStep, setCurrentloadingSteps] = useState('');
   const loadingMessages = [
     'Processing video transcript...',
     'Analyzing content structure...',
@@ -165,7 +165,7 @@ export default function Home() {
       try {
         const res = await fetch(`/api/webhook?taskId=${taskId}`);
         const data = await res.json();
-        setCurrentSteps(data.status);
+        setCurrentloadingSteps(data.status);
         console.log(data);
         if (data.task.status == 'complete') {
           clearInterval(messageInterval);
@@ -272,9 +272,9 @@ export default function Home() {
             {loading && (
               <div className="justify-center">
                 <p>{loadingMessages[messageIndex]}</p>
-                {CurrentStep && (
+                {CurrentloadingStep && (
                   <div className="mt-2 text-center">
-                    <p className="text-sm text-gray-600 capitalize">{CurrentStep}</p>
+                    <p className="text-sm text-gray-600 capitalize">{CurrentloadingStep}</p>
                     <div className="w-64 h-2 bg-gray-200 rounded-full mt-2">
                     </div>
                   </div>
