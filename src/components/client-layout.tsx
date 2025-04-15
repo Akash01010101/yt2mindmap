@@ -4,6 +4,9 @@ import { NextStep, NextStepProvider, Tour} from "nextstepjs"
 import { usePathname } from "next/navigation"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import { HtmlContentProvider } from "@/contexts/HTMLContextProvider"
+import { MindmapStateProvider } from "@/contexts/MindmapStateProvider"
+import { TaskProvider } from "@/contexts/TaskProvider"
 const steps : Tour[] = [
   {
     tour: "mainTour",
@@ -79,6 +82,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <>
+      <HtmlContentProvider>
+      <MindmapStateProvider>
+      <TaskProvider>
       <NextStepProvider>
         <NextStep steps={steps}>
         <Header />
@@ -86,6 +92,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       {showFooter && <Footer />}
         </NextStep>
       </NextStepProvider>
+      </TaskProvider>
+      </MindmapStateProvider>
+      </HtmlContentProvider>
     </>
   )
 }
